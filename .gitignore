@@ -1,0 +1,24 @@
+# 빌드 결과물 — exe 는 빌드.bat 으로 다시 만든다
+build/
+release/
+dist/
+__pycache__/
+*.pyc
+
+# 돌리면서 쌓이는 기록 (수백 MB)
+data/fishlog/
+data/벌목관찰/
+data/벌목배움/
+data/벌목보기/
+data/숫자읽기/
+data/ui/
+data/*.tmp
+data/*.broken
+data/profile.*.json
+
+# 시험 출력
+*.out
+
+# 에이전트 작업 기록
+.omc/
+.claude/
