@@ -28,10 +28,10 @@
     "ui_bg_margin": 16,
     "ui_icon": "",
     "ui_font": "G마켓 산스 TTF Medium",
-    "window_geometry": "1600x1060+-332+59",
-    "sash_main": 848,
+    "window_geometry": "1600x1009+93+165",
+    "sash_main": 797,
     "sash_list": 346,
-    "sash_events": 353,
+    "sash_events": 356,
     "observe_step": 4,
     "observe_interval_ms": 50,
     "observe_seconds": 45
@@ -336,6 +336,174 @@
     "spots_n": 0,
     "damage_px": 0,
     "chopped": 0
+  },
+  "craft": {
+    "home_macro": "[1] 마이홈 이동",
+    "channel_macro": "채널이동(9채널) 복사",
+    "ce_title": "Cheat Engine",
+    "plist_title": "Process List",
+    "target_name": "Z9★ 온라인",
+    "open_process": {
+      "where": "Cheat Engine",
+      "x": 1685,
+      "y": 227
+    },
+    "pick_row": {
+      "where": "Process List",
+      "x": 93,
+      "y": 196
+    },
+    "row_double": true,
+    "speed_check": {
+      "where": "Cheat Engine",
+      "x": 2282,
+      "y": 439
+    },
+    "speed_field": {
+      "where": "Cheat Engine",
+      "x": 2345,
+      "y": 457
+    },
+    "apply_btn": {
+      "where": "Cheat Engine",
+      "x": 2368,
+      "y": 524
+    },
+    "speed_value": "17000",
+    "channel_on": true,
+    "channel_spots": [
+      {
+        "where": "",
+        "x": -1,
+        "y": -1
+      },
+      {
+        "where": "",
+        "x": 432,
+        "y": 619
+      },
+      {
+        "where": "",
+        "x": 589,
+        "y": 619
+      },
+      {
+        "where": "",
+        "x": 737,
+        "y": 620
+      },
+      {
+        "where": "",
+        "x": 898,
+        "y": 621
+      },
+      {
+        "where": "",
+        "x": 297,
+        "y": 675
+      },
+      {
+        "where": "",
+        "x": 437,
+        "y": 675
+      },
+      {
+        "where": "",
+        "x": 597,
+        "y": 666
+      },
+      {
+        "where": "",
+        "x": 732,
+        "y": 673
+      },
+      {
+        "where": "",
+        "x": 887,
+        "y": 675
+      }
+    ],
+    "channel_next": 4,
+    "client_w": 0,
+    "client_h": 0,
+    "buffs": [
+      {
+        "on": true,
+        "key": "5",
+        "name": "점검사",
+        "period_min": 400.0,
+        "due_at": 1790376525.1609972
+      },
+      {
+        "on": true,
+        "key": "6",
+        "name": "삼계탕",
+        "period_min": 34.0,
+        "due_at": 1790370911.7292824
+      },
+      {
+        "on": false,
+        "key": "7",
+        "name": "보주",
+        "period_min": 12.0,
+        "due_at": 0.0
+      },
+      {
+        "on": false,
+        "key": "8",
+        "name": "경카",
+        "period_min": 66.0,
+        "due_at": 0.0
+      }
+    ],
+    "buff_gap_s": 2.0,
+    "esc_times": 2,
+    "esc_gap_s": 0.3,
+    "craft_sound": {
+      "shape": [
+        0.05439,
+        0.0588,
+        0.03134,
+        0.03939,
+        0.98254,
+        0.15568,
+        0.02688,
+        0.01378,
+        0.01653,
+        0.01063,
+        0.00933,
+        0.00612
+      ],
+      "near": 0.88,
+      "floor": 0.03,
+      "hits": 2,
+      "cooldown_s": 4.0,
+      "learned_level": 0.16386
+    },
+    "quiet_s": 10.0,
+    "site_title": "Z9STAR",
+    "site_url": "https://www.z9star.co.kr/home/",
+    "site_wait_s": 20.0,
+    "start_game": {
+      "where": "Z9별",
+      "x": 2109,
+      "y": 652
+    },
+    "start_names": "GAME START, 게임 시작",
+    "client_title": "Z9Star",
+    "load_wait_s": 10.0,
+    "client_wait_s": 10.0,
+    "game_wait_s": 10.0,
+    "connect_tries": 3,
+    "start_btn": {
+      "where": "Z9Star",
+      "x": 882,
+      "y": 585
+    },
+    "after_kill_s": 2.0,
+    "step_gap_s": 0.8,
+    "retry_s": 5.0,
+    "cycles": 102
   },
   "macros": [
     {
@@ -5638,6 +5806,2143 @@
       "hotkey": "",
       "scale_to_window": true,
       "use_moves": false
+    },
+    {
+      "name": "채널이동(9채널)",
+      "events": [],
+      "client_w": 0,
+      "client_h": 0,
+      "absolute": false,
+      "repeat": 1,
+      "speed": 1.0,
+      "interval_ms": 0,
+      "hotkey": "",
+      "scale_to_window": true,
+      "use_moves": false
+    },
+    {
+      "name": "빈 매크로 (2)",
+      "events": [],
+      "client_w": 0,
+      "client_h": 0,
+      "absolute": false,
+      "repeat": 1,
+      "speed": 1.0,
+      "interval_ms": 0,
+      "hotkey": "",
+      "scale_to_window": true,
+      "use_moves": false
+    },
+    {
+      "name": "마이홈 개설",
+      "events": [
+        {
+          "t": 0.8604,
+          "kind": "button",
+          "button": "left",
+          "down": true,
+          "cx": 1330,
+          "cy": 248
+        },
+        {
+          "t": 0.951,
+          "kind": "button",
+          "button": "left",
+          "down": false,
+          "cx": 1330,
+          "cy": 248
+        },
+        {
+          "t": 3.309,
+          "kind": "key",
+          "vk": 189,
+          "down": true
+        },
+        {
+          "t": 3.377,
+          "kind": "key",
+          "vk": 189,
+          "down": false
+        },
+        {
+          "t": 5.4013,
+          "kind": "key",
+          "vk": 32,
+          "down": true
+        },
+        {
+          "t": 5.556,
+          "kind": "key",
+          "vk": 32,
+          "down": false
+        },
+        {
+          "t": 8.012,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.5276,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.5576,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.5878,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.6185,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.6492,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.6794,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.7244,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.7562,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.787,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.8173,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.848,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.8787,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.909,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.9546,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 8.9845,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.0163,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.047,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.0776,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.1079,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.1535,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.1849,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.2148,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.2451,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.2759,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.3064,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.3373,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.3831,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.4135,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.4443,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.4755,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.5063,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.537,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.5823,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.6123,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.6431,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.6741,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.7041,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.7341,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.7797,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.8099,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.8407,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.8721,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.9027,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.9334,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 9.9449,
+          "kind": "key",
+          "vk": 38,
+          "down": false
+        },
+        {
+          "t": 12.1951,
+          "kind": "key",
+          "vk": 88,
+          "down": true
+        },
+        {
+          "t": 12.315,
+          "kind": "key",
+          "vk": 88,
+          "down": false
+        },
+        {
+          "t": 13.173,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.6847,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.7149,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.746,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.7757,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.8055,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.8515,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.8814,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.9118,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.9416,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.9716,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.0164,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.0471,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.0776,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.1086,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.1393,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.1708,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.216,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.2463,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.2766,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.3068,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.3375,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.3683,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.4138,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.4448,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.4759,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.5053,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.5355,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.5654,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.6106,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.6405,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.6706,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.7019,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.7318,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.7624,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.8079,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.8384,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.8692,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.8998,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.9305,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.9607,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.0075,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.0375,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.0677,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.0979,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.1286,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.1589,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.2044,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.2346,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.2661,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.2966,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.3273,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.358,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.4033,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.4341,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.4648,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.4944,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.5245,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.5555,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.6014,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.6312,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.6621,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.6926,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.7231,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.7536,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.7993,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.8299,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.861,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.8916,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.9224,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.9523,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 15.9834,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.0296,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.0608,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.0909,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.1215,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.1522,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.1826,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.2292,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.26,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.2909,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.3212,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.3514,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.3823,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.4126,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.4585,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.489,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.5193,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.5495,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.5798,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.625,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 16.6469,
+          "kind": "key",
+          "vk": 39,
+          "down": false
+        },
+        {
+          "t": 17.6169,
+          "kind": "key",
+          "vk": 72,
+          "down": true
+        },
+        {
+          "t": 17.7279,
+          "kind": "key",
+          "vk": 72,
+          "down": false
+        },
+        {
+          "t": 19.1499,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 19.6508,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 19.6968,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 19.7273,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 19.7579,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 19.7873,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 19.8179,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 19.8485,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 19.8944,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 19.9261,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 19.9565,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 19.9883,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.0194,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.05,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.081,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.1264,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.1568,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.1868,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.2176,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.2781,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.324,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.3549,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.3853,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.4158,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.4463,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.4776,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.5081,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.5542,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.5848,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.6148,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.6452,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.6755,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 20.699,
+          "kind": "key",
+          "vk": 39,
+          "down": false
+        },
+        {
+          "t": 21.2219,
+          "kind": "key",
+          "vk": 40,
+          "down": true
+        },
+        {
+          "t": 21.357,
+          "kind": "key",
+          "vk": 40,
+          "down": false
+        },
+        {
+          "t": 23.064,
+          "kind": "button",
+          "button": "left",
+          "down": true,
+          "cx": -170,
+          "cy": 408
+        },
+        {
+          "t": 23.135,
+          "kind": "button",
+          "button": "left",
+          "down": false,
+          "cx": -170,
+          "cy": 408
+        },
+        {
+          "t": 23.8399,
+          "kind": "button",
+          "button": "left",
+          "down": true,
+          "cx": 449,
+          "cy": 699
+        },
+        {
+          "t": 23.9299,
+          "kind": "button",
+          "button": "left",
+          "down": false,
+          "cx": 449,
+          "cy": 699
+        }
+      ],
+      "client_w": 1366,
+      "client_h": 768,
+      "absolute": false,
+      "repeat": 1,
+      "speed": 1.0,
+      "interval_ms": 0,
+      "hotkey": "",
+      "scale_to_window": true,
+      "use_moves": false
+    },
+    {
+      "name": "채널이동(9채널) 복사",
+      "events": [
+        {
+          "t": 0.0,
+          "kind": "wait",
+          "duration_ms": 5000
+        },
+        {
+          "t": 0.67,
+          "kind": "button",
+          "button": "left",
+          "down": true,
+          "cx": 1197,
+          "cy": 344
+        },
+        {
+          "t": 5.768,
+          "kind": "button",
+          "button": "left",
+          "down": false,
+          "cx": 1197,
+          "cy": 344
+        },
+        {
+          "t": 7.0282,
+          "kind": "button",
+          "button": "left",
+          "down": true,
+          "cx": 685,
+          "cy": 522
+        },
+        {
+          "t": 7.1221,
+          "kind": "button",
+          "button": "left",
+          "down": false,
+          "cx": 685,
+          "cy": 522
+        },
+        {
+          "t": 8.2922,
+          "kind": "button",
+          "button": "left",
+          "down": true,
+          "cx": 425,
+          "cy": 124
+        },
+        {
+          "t": 8.3961,
+          "kind": "button",
+          "button": "left",
+          "down": false,
+          "cx": 425,
+          "cy": 124
+        },
+        {
+          "t": 10.2151,
+          "kind": "button",
+          "button": "left",
+          "down": true,
+          "cx": 420,
+          "cy": 355
+        },
+        {
+          "t": 10.2991,
+          "kind": "button",
+          "button": "left",
+          "down": false,
+          "cx": 420,
+          "cy": 355
+        },
+        {
+          "t": 12.005,
+          "kind": "button",
+          "button": "left",
+          "down": true,
+          "cx": 732,
+          "cy": 668,
+          "craft_channel": true
+        },
+        {
+          "t": 12.101,
+          "kind": "button",
+          "button": "left",
+          "down": false,
+          "cx": 732,
+          "cy": 668,
+          "craft_channel": true
+        },
+        {
+          "t": 12.151,
+          "kind": "wait",
+          "duration_ms": 2000
+        }
+      ],
+      "client_w": 1366,
+      "client_h": 768,
+      "absolute": false,
+      "repeat": 1,
+      "speed": 1.0,
+      "interval_ms": 0,
+      "hotkey": "",
+      "scale_to_window": true,
+      "use_moves": false
+    },
+    {
+      "name": "[1] 마이홈 이동",
+      "events": [
+        {
+          "t": 1.3211,
+          "kind": "button",
+          "button": "left",
+          "down": true,
+          "cx": 578,
+          "cy": 346
+        },
+        {
+          "t": 1.4311,
+          "kind": "button",
+          "button": "left",
+          "down": false,
+          "cx": 578,
+          "cy": 346
+        },
+        {
+          "t": 2.3021,
+          "kind": "key",
+          "vk": 189,
+          "down": true
+        },
+        {
+          "t": 2.38,
+          "kind": "key",
+          "vk": 189,
+          "down": false
+        },
+        {
+          "t": 2.7561,
+          "kind": "key",
+          "vk": 32,
+          "down": true
+        },
+        {
+          "t": 2.913,
+          "kind": "key",
+          "vk": 32,
+          "down": false
+        },
+        {
+          "t": 5.6541,
+          "kind": "key",
+          "vk": 38,
+          "down": true
+        },
+        {
+          "t": 5.8511,
+          "kind": "key",
+          "vk": 38,
+          "down": false
+        },
+        {
+          "t": 6.2511,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 6.7615,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 6.792,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 6.8223,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 6.8527,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 6.8833,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 6.9287,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 6.9585,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 6.9895,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.0202,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.0503,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.0805,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.1272,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.1572,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.1875,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.2186,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.2496,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.2802,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.3263,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.3564,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.3874,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.4177,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.4481,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.4784,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.5236,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.5533,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.5837,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.615,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.6455,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.6764,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.7228,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.7526,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.7826,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.8133,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.8433,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.8738,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.9183,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.9489,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 7.9794,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.0105,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.0419,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.0721,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.1179,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.1483,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.179,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.2101,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.2405,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.2716,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.3023,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.3486,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.379,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.4096,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.4398,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.4704,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.5008,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.5463,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.5762,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.6062,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.6371,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.667,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.7123,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.743,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.7733,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.8031,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.8334,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.8636,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.9088,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.9393,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 8.9698,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 9.0006,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 9.0314,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 9.0614,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 9.1069,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 9.1373,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 9.1641,
+          "kind": "key",
+          "vk": 88,
+          "down": true
+        },
+        {
+          "t": 9.284,
+          "kind": "key",
+          "vk": 88,
+          "down": false
+        },
+        {
+          "t": 10.106,
+          "kind": "key",
+          "vk": 39,
+          "down": false
+        },
+        {
+          "t": 11.6111,
+          "kind": "key",
+          "vk": 72,
+          "down": true
+        },
+        {
+          "t": 11.753,
+          "kind": "key",
+          "vk": 72,
+          "down": false
+        },
+        {
+          "t": 12.7451,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.2565,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.2875,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.3182,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.3496,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.3808,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.4119,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.4423,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.4879,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.5185,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.5491,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.5795,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.6098,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.6546,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.6861,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.7165,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.7477,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.7782,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.8086,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.8384,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.8835,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.9133,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.9431,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 13.9736,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.0037,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.0502,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.0804,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.1109,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.1414,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.1718,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.2025,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.2469,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.2772,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.3084,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.3383,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.3682,
+          "kind": "key",
+          "vk": 39,
+          "down": true
+        },
+        {
+          "t": 14.3719,
+          "kind": "key",
+          "vk": 39,
+          "down": false
+        },
+        {
+          "t": 14.658,
+          "kind": "key",
+          "vk": 40,
+          "down": true
+        },
+        {
+          "t": 14.88,
+          "kind": "key",
+          "vk": 40,
+          "down": false
+        }
+      ],
+      "client_w": 1366,
+      "client_h": 768,
+      "absolute": false,
+      "repeat": 1,
+      "speed": 1.0,
+      "interval_ms": 0,
+      "hotkey": "",
+      "scale_to_window": true,
+      "use_moves": false
+    },
+    {
+      "name": "구매 마을이동스크롤 (2)",
+      "events": [
+        {
+          "t": 0.0,
+          "kind": "wait",
+          "duration_ms": 3000
+        },
+        {
+          "t": 2.5501,
+          "kind": "button",
+          "button": "left",
+          "down": true,
+          "cx": 930,
+          "cy": 249
+        },
+        {
+          "t": 2.6101,
+          "kind": "button",
+          "button": "left",
+          "down": false,
+          "cx": 930,
+          "cy": 249
+        },
+        {
+          "t": 2.8101,
+          "kind": "button",
+          "button": "left",
+          "down": true,
+          "cx": 468,
+          "cy": 460
+        },
+        {
+          "t": 2.8701,
+          "kind": "button",
+          "button": "left",
+          "down": false,
+          "cx": 468,
+          "cy": 460
+        },
+        {
+          "t": 3.0701,
+          "kind": "button",
+          "button": "left",
+          "down": true,
+          "cx": 636,
+          "cy": 513
+        },
+        {
+          "t": 3.1301,
+          "kind": "button",
+          "button": "left",
+          "down": false,
+          "cx": 636,
+          "cy": 513
+        },
+        {
+          "t": 3.2301,
+          "kind": "button",
+          "button": "left",
+          "down": true,
+          "cx": 641,
+          "cy": 517
+        },
+        {
+          "t": 3.2901,
+          "kind": "button",
+          "button": "left",
+          "down": false,
+          "cx": 641,
+          "cy": 517
+        }
+      ],
+      "client_w": 1366,
+      "client_h": 768,
+      "absolute": false,
+      "repeat": 0,
+      "speed": 1.0,
+      "interval_ms": 0,
+      "hotkey": "",
+      "scale_to_window": true,
+      "use_moves": false
     }
   ],
   "repeats": [
@@ -5699,7 +8004,7 @@
               "kind": "macro",
               "target": "1) 사파리이동+ 맹수구매(휠)",
               "delay_ms": -1,
-              "wheel_count": 6,
+              "wheel_count": 1,
               "wait_ms": 1000,
               "limit_mode": "item",
               "repeat_count": 1,

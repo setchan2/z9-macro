@@ -22,3 +22,8 @@ data/profile.*.json
 # 에이전트 작업 기록
 .omc/
 .claude/
+
+# 전체 백업과 치운 항목 (개인 설정 사본 — 저장소에는 안 올린다)
+data/백업/
+data/보관함_지운것/
+data/*.bak

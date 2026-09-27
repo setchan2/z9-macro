@@ -52,6 +52,11 @@ KIND_LABELS = {
     "move": "움직임",
     "fishing": "낚시",
     "lumber": "벌목",
+    "craft": "제작",
+    "craft:buffs": "제작(버프만)",
+    "craft:speedhack": "제작(치트엔진만)",
+    "craft:reconnect": "제작(다시 접속만)",
+    "craft:one": "제작(한 바퀴만)",
 }
 
 
@@ -144,6 +149,48 @@ class Engine:
         self.profile.settings.window_pattern = self.resolver.pattern
         path = storage.save(self.profile, self.profile_path)
         self.log(f"프로필 저장: {path}")
+
+    # ------------------------------------------------------------------
+    # 전체 백업 (보관함 탭에서 쓴다)
+    # ------------------------------------------------------------------
+    @property
+    def profile_file(self) -> Path:
+        return self.profile_path or storage.DEFAULT_PROFILE
+
+    def backup_now(self, note: str = "") -> Path:
+        """지금 설정을 통째로 한 파일에 담는다. **먼저 저장하고** 담는다."""
+        from . import backup
+
+        self.save()
+        path = backup.make(self.profile_file, self.library_root,
+                           storage.DATA_DIR, note=note)
+        counts = backup.counts_of(self.profile_file)
+        self.log(f"전체 백업: {path.name} ("
+                 + " · ".join(f"{k} {v}" for k, v in counts.items() if v)
+                 + f") → {path.parent}")
+        return path
+
+    def restore_backup(self, path) -> dict:
+        """백업을 되돌리고 **설정을 다시 읽는다.**
+
+        돌리고 있던 것은 먼저 멈춘다 — 옛 설정으로 돌던 작업이 새 설정 위에서
+        이어지면 무슨 일이 일어날지 알 수 없다.
+        """
+        from . import backup
+
+        self.stop_all(reason="백업 복원")
+        report = backup.restore(path, self.profile_file, self.library_root,
+                                storage.DATA_DIR)
+        self.profile = storage.load(self.profile_path)
+        self.resolver.set_pattern(self.profile.settings.window_pattern)
+        self.rebind_hotkeys()
+        counts = backup.counts_of(self.profile_file)
+        self.log(f"백업 복원: {Path(path).name} ("
+                 + " · ".join(f"{k} {v}" for k, v in counts.items() if v)
+                 + f") · 보관함 파일 {report['library_files']}개")
+        self.log(f"  복원 직전 설정은 {report['safety'].name} 에 담아 두었습니다.")
+        self._notify()
+        return report
 
     # ------------------------------------------------------------------
     # 라이브러리
@@ -538,9 +585,15 @@ class Engine:
             return False
 
         win = self.window()
-        if win is None:
+        # **제작만은 게임이 꺼져 있어도 시작한다.** 제작 매크로에는 게임을 켜는
+        # 단계(홈페이지 → 클라이언트 → 채널 접속)가 들어 있어서, 꺼진 채로
+        # 시작하면 거기서부터 돌면 된다. 다른 것들은 게임이 없으면 할 일이 없다.
+        if win is None and not kind.startswith("craft"):
             self.log(f"게임 창을 찾지 못했습니다 (패턴: {self.resolver.pattern}).")
             return False
+        if win is None:
+            self.log(f"게임 창이 없습니다 (패턴: {self.resolver.pattern}) — "
+                     "게임을 켜는 단계부터 시작합니다.")
 
         # 권한이 모자라면 입력이 조용히 버려진다. 실행해봐야 아무 일도 일어나지
         # 않으므로, 시작하는 시늉을 하지 말고 이유를 알려주고 멈춘다.
@@ -551,12 +604,14 @@ class Engine:
 
         # 어떤 창에 입력이 갈지 매번 남긴다. 패턴이 느슨해서 엉뚱한 창이
         # 잡히는 사고를 바로 알아챌 수 있어야 한다.
-        if win.title.strip() != self.resolver.pattern.strip():
+        if win is None:
+            pass
+        elif win.title.strip() != self.resolver.pattern.strip():
             self.log(f"⚠ 대상 창: '{win.title}' (패턴과 정확히 일치하지 않음)")
         else:
             self.log(f"대상 창: '{win.title}'")
 
-        if not self._bring_to_front(win):
+        if win is not None and not self._bring_to_front(win):
             return False
 
         ctx = RunContext(self.settings, win, self.log)
@@ -672,6 +727,33 @@ class Engine:
                     self.save()
 
             return _cut
+
+        if kind.startswith("craft"):
+            setup = self.profile.craft
+            part = kind.partition(":")[2]
+
+            # 한 단계만 돌려 보는 것도 같은 코드로 한다. 시험용 길을 따로 두면
+            # 시험에서는 되는데 정작 돌릴 때 어긋나는 일이 생긴다.
+            def _craft() -> None:
+                from . import craft as craft_mod
+
+                try:
+                    if part == "buffs":
+                        craft_mod.use_buffs(setup, ctx, self.save)
+                    elif part == "speedhack":
+                        craft_mod.speedhack(setup, ctx)
+                    elif part == "reconnect":
+                        craft_mod.reconnect(setup, ctx, self.find_macro,
+                                            self.save)
+                    else:
+                        craft_mod.run_craft(setup, ctx,
+                                            find_macro=self.find_macro,
+                                            cycles=1 if part == "one" else 0,
+                                            save=self.save)
+                finally:
+                    self.save()
+
+            return _craft
 
         if kind == "schedule":
             schedule = self.find_schedule(name)

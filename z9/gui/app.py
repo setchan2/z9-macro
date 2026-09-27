@@ -15,6 +15,7 @@ from ..win32 import enable_dpi_awareness
 from . import decor, fonts, theme
 from .status import StatusWindow
 from .tab_achievements import AchievementTab
+from .tab_craft import CraftTab
 from .tab_fishing import FishingTab
 from .tab_help import HelpTab
 from .tab_library import LibraryTab
@@ -294,6 +295,7 @@ class App(tk.Tk):
         self.achievement_tab = AchievementTab(notebook, self.engine)
         self.fishing_tab = FishingTab(notebook, self.engine)
         self.lumber_tab = LumberTab(notebook, self.engine)
+        self.craft_tab = CraftTab(notebook, self.engine)
         self.help_tab = HelpTab(notebook, self.engine)
 
         notebook.add(self.scenario_tab, text="  시나리오 편집기  ")
@@ -303,6 +305,7 @@ class App(tk.Tk):
         notebook.add(self.achievement_tab, text="  업적  ")
         notebook.add(self.fishing_tab, text="  낚시  ")
         notebook.add(self.lumber_tab, text="  벌목  ")
+        notebook.add(self.craft_tab, text="  제작  ")
         notebook.add(self.help_tab, text="  도움말  ")
         notebook.bind("<<NotebookTabChanged>>", self._on_tab_change)
 
@@ -356,6 +359,7 @@ class App(tk.Tk):
         self.achievement_tab.refresh()
         self.fishing_tab.refresh()
         self.lumber_tab.refresh()
+        self.craft_tab.refresh()
         self.scenario_tab.refresh_sources()
         self.scenario_tab.refresh_tools()
 

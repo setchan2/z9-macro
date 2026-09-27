@@ -1735,6 +1735,280 @@ class LumberSetup:
 
 
 
+# --------------------------------------------------------------------------
+# 제작 (치트엔진 속도 + 무한 재접속)
+# --------------------------------------------------------------------------
+@dataclass
+class ClickSpot:
+    """누를 자리 하나.
+
+    where 가 비어 있으면 **화면 절대좌표**, 적혀 있으면 그 제목을 가진 창의
+    **안쪽 좌표**다. 치트엔진이나 브라우저는 창을 옮길 수 있으므로 창 기준으로
+    두면 옮겨도 그대로 눌린다.
+    """
+
+    where: str = ""   # 창 제목 조각 (비면 화면 기준)
+    x: int = -1
+    y: int = -1
+
+    @property
+    def ready(self) -> bool:
+        return self.x >= 0 and self.y >= 0
+
+    def describe(self) -> str:
+        if not self.ready:
+            return "안 정함"
+        base = f"({self.x}, {self.y})"
+        return base + (f" · '{self.where}' 창 기준" if self.where else " · 화면 기준")
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ClickSpot":
+        return _coerce(cls, data if isinstance(data, dict) else {})
+
+
+@dataclass
+class CraftBuff:
+    """제작 버프 하나 — 키 · 이름 · 주기.
+
+    **다음에 쓸 시각을 그대로 들고 있는다**(due_at, 1970년부터의 초). 남은 시간을
+    들고 있으면 프로그램을 껐다 켤 때마다 처음부터 다시 세게 되는데, 버프 주기는
+    몇 시간짜리라 그러면 다 어그러진다. 시각으로 두면 꺼 둔 동안도 흘러간다.
+    """
+
+    on: bool = False
+    key: str = ""
+    name: str = ""
+    period_min: float = 0.0   # 주기(분). 0이면 안 쓴다.
+    due_at: float = 0.0       # 다음에 쓸 시각. 0이면 "지금 바로"
+
+    @property
+    def ready(self) -> bool:
+        return bool(self.on and self.key.strip() and self.period_min > 0)
+
+    def left_s(self, now: float) -> float:
+        """다음에 쓸 때까지 남은 시간(초). 0이면 지금 쓸 때다."""
+        return max(0.0, self.due_at - now)
+
+    def used(self, now: float) -> None:
+        self.due_at = now + self.period_min * 60.0
+
+    def hold(self, now: float, minutes: float) -> None:
+        """**이번만** 다음 사용까지를 그만큼으로 바꾼다. 주기는 안 건드린다."""
+        self.due_at = now + max(0.0, minutes) * 60.0
+
+    def describe(self, now: float) -> str:
+        if not self.on:
+            return "안 씀"
+        if self.period_min <= 0:
+            return "주기를 안 정함"
+        left = self.left_s(now)
+        if left <= 0:
+            return "지금 쓸 차례"
+        return f"{int(left) // 60}분 {int(left) % 60}초 뒤"
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "CraftBuff":
+        obj = _coerce(cls, data if isinstance(data, dict) else {})
+        obj.period_min = max(0.0, min(10080.0, float(obj.period_min)))
+        obj.due_at = max(0.0, float(obj.due_at))
+        return obj
+
+
+@dataclass
+class CraftSetup:
+    """제작 매크로 — 치트엔진으로 속도를 올려 두고 끊기면 다시 접속한다.
+
+    한 바퀴는 이렇다.
+
+        ① 마이홈 개설·이동   (녹화해 둔 매크로)
+        ② 치트엔진           Open Process → 게임 고르기 → Speedhack 켜고 배속 → Apply
+        ③ 제작              띠링 소리가 들리는 동안은 그대로 둔다
+        ④ 소리가 멎으면      게임 강제 종료 → 홈페이지 [게임 시작] → 로딩 → [Start]
+                            → 채널 접속 매크로 → 다시 ①
+
+    **소리가 멎는 것이 곧 끊긴 것이다.** 배속이 크면 인터넷이 끊겨도 화면은
+    멀쩡해 보이는데 경험치만 안 들어온다. 그래서 화면이 아니라 소리로 가린다.
+    """
+
+    # ① · ④ 끝 — 녹화해 둔 매크로 이름
+    home_macro: str = ""      # 마이홈 개설 및 마이홈으로 이동
+    channel_macro: str = ""   # 닫기 → 서버 선택 → 캐릭터 선택 → 채널 선택
+
+    # ② 치트엔진
+    ce_title: str = "Cheat Engine"
+    plist_title: str = "Process List"
+    target_name: str = "Z9★ 온라인"   # 프로세스 목록에서 고를 것 (안내용)
+    open_process: ClickSpot = field(default_factory=ClickSpot)
+    pick_row: ClickSpot = field(default_factory=ClickSpot)
+    row_double: bool = True           # 목록에서 두 번 눌러 고르기
+    speed_check: ClickSpot = field(default_factory=ClickSpot)
+    speed_field: ClickSpot = field(default_factory=ClickSpot)
+    apply_btn: ClickSpot = field(default_factory=ClickSpot)
+    speed_value: str = "17000"
+
+    # ⑥ 채널 — 접속할 때마다 한 칸씩 넘긴다.
+    #
+    # 채널 접속 매크로에서 **클릭 하나만** 채널 단추 자리가 다르다. 그래서 그
+    # 클릭에 표시(craft_channel)를 해 두고, 여기 적어 둔 10개 자리를 돌아가며
+    # 갈아 끼운다. 매크로를 열 개 만들 까닭이 없다.
+    channel_on: bool = True
+    channel_spots: list[ClickSpot] = field(
+        default_factory=lambda: [ClickSpot() for _ in range(10)])
+    channel_next: int = 0     # 다음에 쓸 채널 (0이면 1채널)
+    # 자리를 찍을 때의 게임 창 안쪽 크기. 지금 크기와 다르면 자리가 다
+    # 어긋난다 — 창 크기를 바꿨거나 다른 컴퓨터로 옮긴 때다.
+    client_w: int = 0
+    client_h: int = 0
+
+    # ⑤ 버프 — 마이홈 매크로를 돌리기 **직전에** 주기가 된 것만 쓴다.
+    buffs: list[CraftBuff] = field(default_factory=lambda: [
+        CraftBuff(key="5", name="점검사"),
+        CraftBuff(key="6", name="삼계탕"),
+        CraftBuff(key="7", name="보주"),
+        CraftBuff(key="8", name="경카"),
+    ])
+    buff_gap_s: float = 2.0   # 버프 키 사이 간격(초)
+
+    # 한 바퀴를 시작할 때 맨 먼저 누를 [Esc]. 열려 있던 창을 닫아 두는 것이다 —
+    # 창이 떠 있으면 버프 키도 마이홈 매크로도 그 창이 먹어 버린다.
+    esc_times: int = 2
+    esc_gap_s: float = 0.3
+
+    # ③ 제작 소리
+    craft_sound: SoundCue = field(default_factory=SoundCue)
+    quiet_s: float = 10.0     # 이만큼 소리가 없으면 끊긴 것으로 본다
+
+    # ④ 다시 접속
+    site_title: str = "Z9STAR"       # 브라우저 창 제목에 들어가는 글자
+    site_url: str = "https://www.z9star.co.kr/home/"    # 창이 없으면 이 주소를 연다
+    site_wait_s: float = 20.0        # 주소를 열고 창이 뜨기를 기다리는 시간
+    start_game: ClickSpot = field(default_factory=ClickSpot)   # 홈페이지 [게임 시작]
+    # 홈페이지 단추는 **이름으로** 찾는다. 쉼표로 여러 개를 적을 수 있다.
+    start_names: str = "GAME START, 게임 시작"
+    client_title: str = "Z9Star"     # 클라이언트(로딩) 창 제목
+    # 클라이언트 창이 **뜬 뒤** [Start]를 누르기까지 기다리는 시간. 창은 금세
+    # 뜨지만 그 안이 다 그려지기까지 더 걸린다 — 일찍 누르면 아무 일도 안 난다.
+    load_wait_s: float = 10.0
+    client_wait_s: float = 10.0      # 클라이언트 창이 뜨기를 기다리는 시간
+    game_wait_s: float = 10.0        # [Start] 뒤 게임 창이 뜨기를 기다리는 시간
+    # [Start]를 눌러도 게임이 안 뜨는 때가 있다. 홈페이지부터 몇 번 다시 할지.
+    connect_tries: int = 3
+    start_btn: ClickSpot = field(default_factory=ClickSpot)    # 클라이언트 [Start]
+    after_kill_s: float = 2.0        # 강제 종료 뒤 쉬기
+    step_gap_s: float = 0.8          # 누름 사이 기본 쉬기
+    retry_s: float = 5.0             # 뭔가 어긋났을 때 다시 해 보기까지
+
+    cycles: int = 0                  # 여태 돈 바퀴 수 (참고용)
+
+    # 이 자리들은 치트엔진 창에서 **스스로 찾는다.** 못 찾을 때만 쓰는 예비다.
+    CE_SPOTS = ("open_process", "pick_row", "speed_check", "speed_field",
+                "apply_btn")
+
+    SPOTS = (("open_process", "Open Process 단추"),
+             ("pick_row", "프로세스 목록에서 게임 줄"),
+             ("speed_check", "Enable Speedhack 체크칸"),
+             ("speed_field", "배속 적는 칸"),
+             ("apply_btn", "Apply 단추"),
+             ("start_game", "홈페이지 [게임 시작]"),
+             ("start_btn", "로딩 창 [Start]"))
+
+    def channel_spot(self) -> tuple[int, "ClickSpot | None"]:
+        """(채널 번호, 그 자리). 쓸 자리가 없으면 (번호, None)."""
+        if not self.channel_on or not self.channel_spots:
+            return (0, None)
+        total = len(self.channel_spots)
+        # 자리를 안 찍은 채널은 건너뛴다. 10개를 다 찍어야만 돌아가면,
+        # 세 개만 쓰고 싶을 때 쓸 수가 없다.
+        for step in range(total):
+            index = (self.channel_next + step) % total
+            if self.channel_spots[index].ready:
+                self.channel_next = index
+                return (index + 1, self.channel_spots[index])
+        return (0, None)
+
+    def channel_done(self) -> None:
+        """한 채널 썼다 — 다음 채널로 넘긴다. 자리를 안 찍은 채널은 건너뛴다."""
+        total = len(self.channel_spots)
+        for step in range(1, total + 1):
+            index = (self.channel_next + step) % total
+            if self.channel_spots[index].ready:
+                self.channel_next = index
+                return
+        self.channel_next = (self.channel_next + 1) % max(1, total)
+
+    def names(self) -> list[str]:
+        """홈페이지에서 찾을 단추 이름들."""
+        return [n.strip() for n in self.start_names.split(",") if n.strip()]
+
+    def problems(self) -> list[str]:
+        """아직 못 정한 것들. 비어 있으면 돌릴 수 있다."""
+        out = []
+        if not self.home_macro:
+            out.append("① 마이홈 매크로를 안 골랐습니다")
+        if not self.channel_macro:
+            out.append("④ 채널 접속 매크로를 안 골랐습니다")
+        # 치트엔진 쪽 자리는 **못 찾을 때 쓰는 예비**다. 단추는 적힌 글씨로,
+        # 목록 줄은 이름으로 찾으므로 안 찍어도 돌아간다.
+        for attr, label in self.SPOTS:
+            if attr in self.CE_SPOTS or attr == "start_game":
+                continue  # 이름으로 찾으므로 예비다
+            if not getattr(self, attr).ready:
+                out.append(f"'{label}' 자리를 안 찍었습니다")
+        if not self.craft_sound.ready:
+            out.append("③ 제작 소리를 아직 안 배웠습니다")
+        if not self.speed_value.strip().isdigit():
+            out.append(f"배속 '{self.speed_value}'이(가) 숫자가 아닙니다")
+        return out
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "CraftSetup":
+        data = data if isinstance(data, dict) else {}
+        flat = {k: v for k, v in data.items()
+                if k not in {"craft_sound", "buffs", "channel_spots"}
+                and k not in dict(cls.SPOTS)}
+        obj = _coerce(cls, flat)
+        obj.craft_sound = SoundCue.from_dict(data.get("craft_sound") or {})
+        rows = data.get("buffs")
+        if isinstance(rows, list) and rows:
+            obj.buffs = [CraftBuff.from_dict(r) for r in rows][:12]
+        obj.buff_gap_s = max(0.1, min(30.0, float(obj.buff_gap_s)))
+        obj.esc_times = max(0, min(10, int(obj.esc_times)))
+        obj.esc_gap_s = max(0.05, min(5.0, float(obj.esc_gap_s)))
+        spots = data.get("channel_spots")
+        if isinstance(spots, list) and spots:
+            obj.channel_spots = [ClickSpot.from_dict(x) for x in spots][:20]
+        while len(obj.channel_spots) < 10:
+            obj.channel_spots.append(ClickSpot())
+        obj.channel_next = max(0, int(obj.channel_next)) % len(obj.channel_spots)
+        for attr, _label in cls.SPOTS:
+            setattr(obj, attr, ClickSpot.from_dict(data.get(attr) or {}))
+        obj.quiet_s = max(1.0, min(600.0, float(obj.quiet_s)))
+        obj.load_wait_s = max(0.0, min(300.0, float(obj.load_wait_s)))
+        obj.site_wait_s = max(3.0, min(120.0, float(obj.site_wait_s)))
+        obj.client_wait_s = max(5.0, min(600.0, float(obj.client_wait_s)))
+        obj.game_wait_s = max(5.0, min(600.0, float(obj.game_wait_s)))
+        obj.connect_tries = max(1, min(10, int(obj.connect_tries)))
+        # 예전에는 칸이 하나여서 '창 제목'에 주소를 적어 둔 설정이 있다. 주소는
+        # 창 제목에 안 나오므로 그대로 두면 창을 영영 못 찾는다. 주소 칸으로 옮긴다.
+        if obj.site_title.lower().startswith(("http://", "https://")):
+            if not obj.site_url.lower().startswith("http"):
+                obj.site_url = obj.site_title
+            obj.site_title = cls.site_title
+        obj.after_kill_s = max(0.0, min(60.0, float(obj.after_kill_s)))
+        obj.step_gap_s = max(0.05, min(10.0, float(obj.step_gap_s)))
+        obj.retry_s = max(1.0, min(120.0, float(obj.retry_s)))
+        obj.cycles = max(0, int(obj.cycles))
+        return obj
+
 
 # --------------------------------------------------------------------------
 # 설정 + 프로필
@@ -1878,6 +2152,8 @@ class Profile:
     fishing: FishingSetup = field(default_factory=FishingSetup)
     # 벌목도 맵마다 따로 둘 까닭이 없어 하나다.
     lumber: LumberSetup = field(default_factory=LumberSetup)
+    # 제작도 하나. 치트엔진 자리와 다시 접속하는 길을 적어 둔다.
+    craft: CraftSetup = field(default_factory=CraftSetup)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -1886,6 +2162,7 @@ class Profile:
             "achievements": [a.to_dict() for a in self.achievements],
             "fishing": self.fishing.to_dict(),
             "lumber": self.lumber.to_dict(),
+            "craft": self.craft.to_dict(),
             "macros": [m.to_dict() for m in self.macros],
             "repeats": [r.to_dict() for r in self.repeats],
             "paths": [p.to_dict() for p in self.paths],
@@ -1915,4 +2192,5 @@ class Profile:
             ],
             fishing=FishingSetup.from_dict(data.get("fishing", {})),
             lumber=LumberSetup.from_dict(data.get("lumber") or {}),
+            craft=CraftSetup.from_dict(data.get("craft") or {}),
         )

@@ -136,6 +136,24 @@ class GameWindow:
             return (x, y)
         return (pt.x, pt.y)
 
+    def maximized(self) -> bool:
+        return bool(w.user32.IsZoomed(self.hwnd))
+
+    def maximize(self) -> bool:
+        """창을 화면 가득 키운다. 이미 커져 있으면 그대로 둔다.
+
+        작은 창으로 떠 있으면 누를 단추가 창 밖으로 밀리거나 다른 창에 가린다.
+        키워 두면 자리도 넉넉해지고 가려질 일도 없다.
+        """
+        if not self.is_alive():
+            return False
+        if self.maximized():
+            return True
+        if w.user32.IsIconic(self.hwnd):
+            w.user32.ShowWindow(self.hwnd, w.SW_RESTORE)
+        w.user32.ShowWindow(self.hwnd, w.SW_MAXIMIZE)
+        return self.maximized()
+
     @property
     def minimized(self) -> bool:
         """최소화된 창은 화면에서 읽을 수 없다 (BitBlt이 빈 그림을 준다)."""

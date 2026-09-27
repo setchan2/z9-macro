@@ -700,6 +700,7 @@ def _scenario_line(scenario: Scenario, loop: int) -> str:
 def _run_macro_step(
     name: str, ctx: RunContext, find_macro, label: str,
     wheel_count: int = -1, repeat: int | None = None, quiet: bool = False,
+    edit=None,
 ) -> bool:
     """매크로 하나를 하위 컨텍스트에서 실행한다. 중단되면 False."""
     macro = find_macro(name)
@@ -729,6 +730,15 @@ def _run_macro_step(
             f"  ※ '{macro.name}'은 무한 반복 설정입니다. "
             "시나리오 안에서는 1회만 실행합니다."
         )
+
+    if edit is not None:
+        # 이번 실행에만 이벤트를 갈아 끼운다 (예: 제작의 채널 단추 자리).
+        # **원본은 절대 건드리지 않는다** — 설정에 저장된 매크로가 바뀌면 안 된다.
+        fresh = edit(target.events)
+        if fresh is not None and fresh is not target.events:
+            if target is macro:
+                target = copy.copy(macro)
+            target.events = fresh
 
     if wheel_count >= 0 and any(e.get("kind") == "wheel" for e in target.events):
         # 원본은 그대로 두고, 이번 실행에만 휠 칸 수를 갈아 끼운다.

@@ -12,27 +12,39 @@ from tkinter import filedialog, messagebox, simpledialog, ttk
 
 from .. import library
 from ..engine import Engine
+from .widgets import ScrollFrame
 
 
-class LibraryTab(ttk.Frame):
+class LibraryTab(ScrollFrame):
+    """보관함 탭.
+
+    **세로로 넘치면 스크롤된다.** 보관함 목록 · 올리기 · 전체 백업이 차례로
+    놓이는데, 노트북처럼 세로가 짧은 화면에서는 아래쪽(백업 목록과 단추)이
+    통째로 잘려 아예 못 썼다. 이 탭만 창 높이에 기대고 있었다.
+    """
+
     def __init__(self, parent: tk.Misc, engine: Engine, on_changed) -> None:
-        super().__init__(parent, padding=12)
+        super().__init__(parent)
+        self.body = ttk.Frame(self.inner, padding=12)
+        self.body.pack(fill="both", expand=True)
         self.engine = engine
         self.on_changed = on_changed
         self._entries: dict[str, library.LibraryEntry] = {}
         self._save_targets: list[tuple[str, object]] = []
 
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(1, weight=1)
+        self.body.columnconfigure(0, weight=1)
 
         self._build_header()
+        # **전체 백업을 맨 위에 둔다.** 아래쪽에 두었더니 노트북처럼 세로가 짧은
+        # 화면에서는 목록도 단추도 통째로 잘려 아예 못 썼다.
+        self._build_backup()
         self._build_browser()
         self._build_saver()
         self.refresh()
 
     # ------------------------------------------------------------------
     def _build_header(self) -> None:
-        box = ttk.Frame(self)
+        box = ttk.Frame(self.body)
         box.grid(row=0, column=0, sticky="ew")
 
         ttk.Label(box, text="보관 폴더").pack(side="left")
@@ -45,8 +57,8 @@ class LibraryTab(ttk.Frame):
         )
 
     def _build_browser(self) -> None:
-        box = ttk.LabelFrame(self, text="보관함", padding=10)
-        box.grid(row=1, column=0, sticky="nsew", pady=(12, 0))
+        box = ttk.LabelFrame(self.body, text="보관함", padding=10)
+        box.grid(row=2, column=0, sticky="nsew", pady=(12, 0))
         box.rowconfigure(0, weight=1)
         box.columnconfigure(0, weight=1)
 
@@ -54,7 +66,7 @@ class LibraryTab(ttk.Frame):
         wrap.grid(row=0, column=0, sticky="nsew")
 
         self.tree = ttk.Treeview(
-            wrap, columns=("type",), show="tree headings", selectmode="browse", height=13
+            wrap, columns=("type",), show="tree headings", selectmode="browse", height=7
         )
         self.tree.heading("#0", text="이름")
         self.tree.column("#0", width=340, stretch=True)
@@ -84,19 +96,18 @@ class LibraryTab(ttk.Frame):
         )
 
     def _build_saver(self) -> None:
-        box = ttk.LabelFrame(self, text="보관함에 올리기 (녹화 매크로 · 시나리오)", padding=10)
-        box.grid(row=2, column=0, sticky="ew", pady=(12, 0))
+        box = ttk.LabelFrame(self.body,
+                             text="보관함에 올리기 (녹화 매크로 · 시나리오)",
+                             padding=10)
+        box.grid(row=3, column=0, sticky="ew", pady=(12, 0))
         box.columnconfigure(1, weight=1)
 
         ttk.Label(
             box, style="Faint.TLabel", justify="left", wraplength=760,
-            text=("보관함은 지금 가진 녹화 매크로 · 시나리오와 똑같이 맞춰집니다.\n"
-                  "· 올릴 때 같은 이름이 보관함에 있으면 보관함 쪽을 치우고 새로 저장합니다 "
-                  "(원래 있던 카테고리에).\n"
-                  "· 지금 가진 매크로 · 시나리오가 아닌 항목 파일(지난 매크로, 조건, 예약 등)은 "
-                  "올릴 때마다 자동으로 치웁니다.\n"
-                  "· 치운 것은 지우지 않고 data\\보관함_지운것 폴더에 옮겨 둡니다. 감지 아이콘 "
-                  "같은 그림 파일은 건드리지 않습니다."),
+            text=("보관함은 지금 가진 녹화 매크로 · 시나리오와 똑같이 맞춰집니다. "
+                  "같은 이름은 새로 저장하고, 지금 가진 것이 아닌 항목 파일은 "
+                  "data\\보관함_지운것 폴더로 옮겨 둡니다(지우지 않습니다). "
+                  "감지 아이콘 같은 그림은 건드리지 않습니다."),
         ).grid(row=3, column=0, columnspan=2, sticky="w", pady=(10, 0))
 
         ttk.Label(box, text="올릴 항목").grid(row=0, column=0, sticky="w", padx=(0, 8))
@@ -118,9 +129,205 @@ class LibraryTab(ttk.Frame):
                    command=self._save_all).pack(side="left", padx=8)
 
     # ------------------------------------------------------------------
+    # 전체 백업 — 이 컴퓨터의 설정을 통째로 담고, 다른 컴퓨터에서 그대로 쓴다.
+    # ------------------------------------------------------------------
+    def _build_backup(self) -> None:
+        box = ttk.LabelFrame(self.body,
+                             text="전체 백업 (다른 컴퓨터로 그대로 옮기기)",
+                             padding=10)
+        box.grid(row=1, column=0, sticky="nsew", pady=(12, 0))
+        box.columnconfigure(0, weight=1)
+        box.rowconfigure(1, weight=1)
+
+        ttk.Label(
+            box, style="Faint.TLabel", justify="left", wraplength=760,
+            text=("설정 전부(매크로 · 시나리오 · 조건 · 이동 · 예약 · 낚시 · "
+                  "벌목 · 제작)와 보관함 그림 · 숫자 글꼴을 파일 하나에 담습니다. "
+                  "다른 컴퓨터로 옮겨 [파일에서 가져오기] → [되돌리기] 하면 그 "
+                  "컴퓨터가 이 설정과 똑같아집니다. 되돌리기 전에는 지금 설정을 "
+                  "자동으로 한 벌 담아 둡니다."),
+        ).grid(row=0, column=0, sticky="w", pady=(0, 8))
+
+        wrap = ttk.Frame(box)
+        wrap.grid(row=1, column=0, sticky="nsew")
+        self.backup_tree = ttk.Treeview(
+            wrap, columns=("when", "what", "size"), show="headings",
+            selectmode="browse", height=4)
+        self.backup_tree.heading("when", text="만든 때")
+        self.backup_tree.column("when", width=150, stretch=False)
+        self.backup_tree.heading("what", text="담긴 것")
+        self.backup_tree.column("what", width=420, stretch=True)
+        self.backup_tree.heading("size", text="크기")
+        self.backup_tree.column("size", width=80, anchor="e", stretch=False)
+        self.backup_tree.pack(side="left", fill="both", expand=True)
+        bar = ttk.Scrollbar(wrap, orient="vertical",
+                            command=self.backup_tree.yview)
+        bar.pack(side="left", fill="y")
+        self.backup_tree.configure(yscrollcommand=bar.set)
+
+        actions = ttk.Frame(box)
+        actions.grid(row=2, column=0, sticky="w", pady=(10, 0))
+        ttk.Button(actions, text="지금 백업 만들기", style="Accent.TButton",
+                   command=self._backup_now).pack(side="left")
+        ttk.Button(actions, text="↩ 고른 백업으로 되돌리기",
+                   command=self._backup_restore).pack(side="left", padx=8)
+        ttk.Button(actions, text="파일에서 가져오기",
+                   command=self._backup_import).pack(side="left")
+        ttk.Button(actions, text="파일로 내보내기",
+                   command=self._backup_export).pack(side="left", padx=8)
+        ttk.Button(actions, text="폴더 열기",
+                   command=self._backup_folder).pack(side="left")
+        ttk.Button(actions, text="지우기", style="SmallDanger.TButton",
+                   command=self._backup_delete).pack(side="left", padx=8)
+
+    def _data_dir(self):
+        from .. import storage
+
+        return storage.DATA_DIR
+
+    def _refresh_backups(self) -> None:
+        from .. import backup
+
+        self.backup_tree.delete(*self.backup_tree.get_children())
+        self._backups = {}
+        for row in backup.listing(self._data_dir()):
+            counts = row.get("counts") or {}
+            what = " · ".join(f"{k} {v}" for k, v in counts.items() if v)
+            if row.get("library_files"):
+                what += f" · 보관함 {row['library_files']}개"
+            if row.get("computer"):
+                what += f"  ({row['computer']})"
+            if not row.get("ok"):
+                what = "⚠ 설정이 없는 파일 — 되돌릴 수 없습니다"
+            when = row["made_at"].replace("T", " ")
+            size = (f"{row['size'] / 1048576:.1f}MB" if row["size"] > 1048576
+                    else f"{row['size'] // 1024}KB")
+            key = self.backup_tree.insert(
+                "", "end", values=(when, what or row["name"], size))
+            self._backups[key] = row
+
+    def _picked_backup(self):
+        picked = self.backup_tree.selection()
+        if not picked:
+            messagebox.showinfo("전체 백업", "목록에서 백업을 먼저 고르세요.",
+                                parent=self)
+            return None
+        return self._backups.get(picked[0])
+
+    def _backup_now(self) -> None:
+        try:
+            path = self.engine.backup_now()
+        except OSError as exc:
+            messagebox.showerror("전체 백업", f"백업을 못 만들었습니다:\n{exc}",
+                                 parent=self)
+            return
+        self._refresh_backups()
+        messagebox.showinfo(
+            "전체 백업",
+            f"지금 설정을 담았습니다.\n\n{path.name}\n{path.parent}", parent=self)
+
+    def _backup_restore(self) -> None:
+        row = self._picked_backup()
+        if row is None:
+            return
+        if not row.get("ok"):
+            messagebox.showwarning("전체 백업",
+                                   "이 파일에는 설정이 들어 있지 않습니다.",
+                                   parent=self)
+            return
+        counts = " · ".join(f"{k} {v}"
+                            for k, v in (row.get("counts") or {}).items() if v)
+        if not messagebox.askyesno(
+                "되돌리기",
+                f"{row['made_at'].replace('T', ' ')} 에 담은 설정으로 "
+                f"되돌릴까요?\n\n담긴 것: {counts}\n\n"
+                "지금 설정(매크로 · 시나리오 · 조건 · 낚시 · 벌목 · 제작)은 "
+                "이 백업의 것으로 모두 바뀝니다.\n"
+                "되돌리기 직전 설정은 자동으로 한 벌 담아 둡니다.",
+                parent=self):
+            return
+        try:
+            report = self.engine.restore_backup(row["path"])
+        except Exception as exc:  # noqa: BLE001 — 창으로 알려 준다
+            messagebox.showerror("되돌리기", f"되돌리지 못했습니다:\n{exc}",
+                                 parent=self)
+            return
+        self.on_changed()
+        self._refresh_backups()
+        messagebox.showinfo(
+            "되돌리기",
+            f"설정을 되돌렸습니다.\n\n보관함 파일 {report['library_files']}개도 "
+            f"함께 되돌렸습니다.\n직전 설정은 {report['safety'].name} 에 있습니다.",
+            parent=self)
+
+    def _backup_import(self) -> None:
+        from .. import backup
+
+        picked = filedialog.askopenfilename(
+            title="백업 파일 가져오기", parent=self,
+            filetypes=[("Z9 백업", f"*{backup.SUFFIX}"), ("모든 파일", "*.*")])
+        if not picked:
+            return
+        try:
+            path = backup.bring_in(picked, self._data_dir())
+        except OSError as exc:
+            messagebox.showerror("가져오기", f"가져오지 못했습니다:\n{exc}",
+                                 parent=self)
+            return
+        self._refresh_backups()
+        self.engine.log(f"백업 가져옴: {path.name}")
+        messagebox.showinfo(
+            "가져오기",
+            f"{path.name} 을(를) 목록에 넣었습니다.\n\n"
+            "목록에서 고르고 [되돌리기]를 누르면 이 컴퓨터가 그 설정과 "
+            "똑같아집니다.", parent=self)
+
+    def _backup_export(self) -> None:
+        import shutil
+
+        row = self._picked_backup()
+        if row is None:
+            return
+        target = filedialog.asksaveasfilename(
+            title="백업 파일 내보내기", parent=self,
+            initialfile=row["name"], defaultextension=row["path"].suffix)
+        if not target:
+            return
+        try:
+            shutil.copy2(row["path"], target)
+        except OSError as exc:
+            messagebox.showerror("내보내기", f"내보내지 못했습니다:\n{exc}",
+                                 parent=self)
+            return
+        self.engine.log(f"백업 내보냄: {target}")
+
+    def _backup_folder(self) -> None:
+        from .. import backup
+
+        folder = backup.folder_of(self._data_dir())
+        folder.mkdir(parents=True, exist_ok=True)
+        os.startfile(folder)  # noqa: S606 — 탐색기로 폴더만 연다
+
+    def _backup_delete(self) -> None:
+        row = self._picked_backup()
+        if row is None:
+            return
+        if not messagebox.askyesno("지우기", f"{row['name']} 을(를) 지울까요?",
+                                   parent=self):
+            return
+        try:
+            row["path"].unlink()
+        except OSError as exc:
+            messagebox.showerror("지우기", f"지우지 못했습니다:\n{exc}",
+                                 parent=self)
+            return
+        self._refresh_backups()
+
+    # ------------------------------------------------------------------
     def refresh(self) -> None:
         root = self.engine.library_root
         self.path_var.set(str(root))
+        self._refresh_backups()
 
         self.tree.delete(*self.tree.get_children())
         self._entries.clear()

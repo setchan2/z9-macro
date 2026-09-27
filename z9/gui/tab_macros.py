@@ -305,6 +305,23 @@ class MacroTab(ListEditorTab):
         self.wait_entry = int_entry(editor, self.ev_wait, width=7)
         self.wait_entry.grid(row=0, column=9, sticky="w")
 
+        # -- 제작 채널 이동 --------------------------------------------------
+        #
+        # 채널 접속 매크로는 **클릭 하나만** 채널마다 다르다. 그 클릭에 표시를
+        # 해 두면, 제작이 게임을 다시 켤 때마다 1채널 → 2채널 … 로 자리를
+        # 갈아 끼운다. 매크로를 열 개 만들 까닭이 없다.
+        channel = ttk.Frame(editor)
+        channel.grid(row=3, column=0, columnspan=12, sticky="w", pady=(8, 0))
+        self.channel_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(
+            channel, text="제작 채널 이동 클릭", variable=self.channel_var,
+            command=self._mark_channel,
+        ).pack(side="left")
+        ttk.Button(channel, text="채널 자리 10개 정하기…", style="Small.TButton",
+                   command=self._channel_spots).pack(side="left", padx=6)
+        self.channel_note = ttk.Label(channel, text="", style="Faint.TLabel")
+        self.channel_note.pack(side="left", padx=(6, 0))
+
         buttons = ttk.Frame(editor)
         buttons.grid(row=2, column=0, columnspan=12, sticky="w", pady=(10, 0))
         ttk.Button(
@@ -721,6 +738,7 @@ class MacroTab(ListEditorTab):
         if event["kind"] == "wheel":
             self.ev_wheel.set(str(event.get("wheel", 120)))
             self.ev_wheel_count.set(str(editing.wheel_count(event)))
+        self._sync_channel(event)
         self._sync_editor()
 
     def _sync_editor(self) -> None:
@@ -794,6 +812,144 @@ class MacroTab(ListEditorTab):
         for event in item.events:
             if event["t"] > after_t + 1e-9:
                 event["t"] = round(max(0.0, event["t"] + delta), 4)
+
+    # -- 제작 채널 이동 ---------------------------------------------------
+    def _sync_channel(self, event: dict) -> None:
+        """고른 이벤트가 '제작 채널 이동' 표시를 달고 있는지 보여 준다."""
+        from ..craft import CHANNEL_MARK
+
+        self.channel_var.set(bool(event.get(CHANNEL_MARK)))
+        setup = self.engine.profile.craft
+        done = sum(1 for spot in setup.channel_spots if spot.ready)
+        nxt, _spot = setup.channel_spot()
+        self.channel_note.configure(
+            text=(f"채널 자리 {done}/10개 정함 · 다음은 {nxt}채널"
+                  if done else "채널 자리를 아직 안 정했습니다"))
+
+    def _mark_channel(self) -> None:
+        """고른 클릭에 표시를 달거나 뗀다. 짝(누름·뗌)도 같이."""
+        from ..craft import CHANNEL_MARK
+
+        item = self.selected()
+        picks = self._selected_indices()
+        if item is None or not picks:
+            self.channel_var.set(False)
+            return
+        want = bool(self.channel_var.get())
+        targets = set(picks)
+        if self.pair_var.get():
+            pairs, _unmatched = editing.find_pairs(item.events)
+            for down, up in pairs:
+                if down in targets or up in targets:
+                    targets |= {down, up}
+        touched = 0
+        for index in sorted(targets):
+            event = item.events[index]
+            if "cx" not in event:
+                continue   # 좌표가 없는 이벤트는 채널과 상관없다
+            if want:
+                event[CHANNEL_MARK] = True
+            else:
+                event.pop(CHANNEL_MARK, None)
+            touched += 1
+        if not touched:
+            self.channel_var.set(False)
+            messagebox.showinfo(
+                "제작 채널 이동",
+                "마우스 클릭 이벤트에만 표시할 수 있습니다.", parent=self)
+            return
+        self.engine.save()
+        self.engine.log(
+            f"'{item.name}': 클릭 {touched}개를 제작 채널 이동으로 "
+            + ("표시했습니다." if want else "표시 해제했습니다."))
+        self._after_change(item, select=picks[0])
+
+    def _channel_spots(self) -> None:
+        """채널 1~10의 클릭 자리를 정하는 작은 창."""
+        setup = self.engine.profile.craft
+        top = tk.Toplevel(self)
+        top.title("제작 채널 자리")
+        top.transient(self.winfo_toplevel())
+        frame = ttk.Frame(top, padding=theme.pad(10))
+        frame.pack(fill="both", expand=True)
+        ttk.Label(
+            frame, style="Faint.TLabel", justify="left",
+            wraplength=theme.px(460),
+            text=("채널 단추 10개의 자리를 하나씩 찍어 주세요. 게임 창에서 "
+                  "그 채널 단추를 누르면 됩니다 (클릭은 게임에 안 들어갑니다).\n"
+                  "제작이 게임을 다시 켤 때마다 다음 채널로 넘어갑니다. 자리를 "
+                  "안 찍은 채널은 건너뜁니다."),
+        ).grid(row=0, column=0, columnspan=4, sticky="w", pady=(0, 8))
+
+        labels = []
+        def redraw() -> None:
+            for i, var in enumerate(labels):
+                var.set(setup.channel_spots[i].describe())
+            nxt, _spot = setup.channel_spot()
+            done = sum(1 for spot in setup.channel_spots if spot.ready)
+            head.configure(text=f"{done}/10개 정함 · 다음에 쓸 채널: {nxt}채널")
+            # 편집기 쪽 안내도 같이 고친다. 자리를 찍었는데 "아직 안 정했습니다"가
+            # 남아 있으면 정말 안 된 줄 안다.
+            self._sync_channel_note()
+
+        def pick(index: int) -> None:
+            window = self.engine.window()
+            got = capture_click_point(top, window)
+            if got is None:
+                return
+            cx, cy, _color = got
+            spot = setup.channel_spots[index]
+            spot.where, spot.x, spot.y = "", int(cx), int(cy)
+            if window is not None:
+                # 지금 게임 창 크기를 함께 적어 둔다. 나중에 창 크기가 달라지면
+                # 자리가 다 어긋나는데, 적어 두면 그것을 알아챌 수 있다.
+                setup.client_w, setup.client_h = window.client_size()
+            self.engine.save()
+            redraw()
+            self.engine.log(f"제작: {index + 1}채널 자리를 ({cx}, {cy})로 "
+                            "정했습니다.")
+
+        def clear(index: int) -> None:
+            spot = setup.channel_spots[index]
+            spot.where, spot.x, spot.y = "", -1, -1
+            self.engine.save()
+            redraw()
+
+        def use_next(index: int) -> None:
+            setup.channel_next = index
+            self.engine.save()
+            redraw()
+
+        for i in range(len(setup.channel_spots)):
+            ttk.Label(frame, text=f"{i + 1}채널").grid(
+                row=i + 1, column=0, sticky="w", pady=1)
+            var = tk.StringVar()
+            labels.append(var)
+            ttk.Label(frame, textvariable=var, width=26).grid(
+                row=i + 1, column=1, sticky="w", padx=(8, 8))
+            ttk.Button(frame, text="🎯 찍기", style="Small.TButton",
+                       command=lambda i=i: pick(i)).grid(row=i + 1, column=2)
+            ttk.Button(frame, text="지우기", style="Small.TButton",
+                       command=lambda i=i: clear(i)).grid(row=i + 1, column=3,
+                                                          padx=(4, 0))
+            ttk.Button(frame, text="다음은 여기", style="Small.TButton",
+                       command=lambda i=i: use_next(i)).grid(row=i + 1, column=4,
+                                                             padx=(4, 0))
+        head = ttk.Label(frame, text="")
+        head.grid(row=len(setup.channel_spots) + 1, column=0, columnspan=3,
+                  sticky="w", pady=(8, 0))
+        ttk.Button(frame, text="닫기",
+                   command=lambda: (self._sync_channel_note(), top.destroy())
+                   ).grid(row=len(setup.channel_spots) + 1, column=4,
+                          sticky="e", pady=(8, 0))
+        redraw()
+
+    def _sync_channel_note(self) -> None:
+        item = self.selected()
+        picks = self._selected_indices()
+        event = (item.events[picks[0]]
+                 if item and picks and picks[0] < len(item.events) else {})
+        self._sync_channel(event)
 
     def _apply_event(self) -> None:
         item = self.selected()
