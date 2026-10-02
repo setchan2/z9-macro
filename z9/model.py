@@ -2055,6 +2055,23 @@ class RanchSetup:
     fatigue_runs: int = 0     # 피로도 매크로를 돌린 횟수 (참고용)
     every_runs: int = 0       # N바퀴 매크로를 돌린 횟수 (참고용)
 
+    # 휠 칸 수마다 무엇을 사는지 — 칸 수가 곧 목록에서의 순번이다 (0칸 = 맨 위).
+    #   "1) …맹수구매(휠)" 매크로 → 맹수,  "2) …동물구매(휠)" 매크로 → 동물
+    WHEEL_PICKS = (
+        ("1)", "맹수", ("늑대", "표범", "사자", "호랑이", "코끼리", "코뿔소",
+                       "회색곰", "악어", "퓨마", "살무사")),
+        ("2)", "동물", ("유황오리", "양", "숫양", "돼지", "흑돼지", "젖소",
+                       "사슴", "말", "알파카")),
+    )
+
+    def wheel_step(self, prefix: str) -> "ScenarioStep | None":
+        """매크로 이름이 그것('1)' · '2)')으로 시작하는 첫 단계."""
+        for group in self.ordered_groups:
+            for step in group.steps:
+                if step.kind == "macro" and step.target.strip().startswith(prefix):
+                    return step
+        return None
+
     @property
     def ordered_groups(self) -> list[ScenarioGroup]:
         """차례대로 도는 그룹만. 조건부 그룹은 목장에서 쓰지 않는다."""
@@ -2109,6 +2126,60 @@ class RanchSetup:
         obj.every_on = bool(obj.every_on)
         obj.every_n = max(1, min(100000, int(obj.every_n)))
         obj.every_runs = max(0, int(obj.every_runs))
+        return obj
+
+
+# --------------------------------------------------------------------------
+# 채광 (Ctrl 꾹 + 피로도)
+# --------------------------------------------------------------------------
+@dataclass
+class MineSetup:
+    """채광 — 화면을 한 번 누르고 [Ctrl]을 꾹 누른 채 피로도가 찰 때까지 둔다.
+
+        ⓪ 시작       게임 창을 앞으로 → 화면 한복판 클릭 → [Ctrl] 누름
+        ⋯ 누른 채로  피로도를 정한 간격(기본 1분)마다 확인 — 가득이면 끝
+                     버프 재사용 대기가 끝나면 [Ctrl] 떼고 →
+                     [Esc] → 버프 키 → [Esc] → 다시 [Ctrl] 누름
+    """
+
+    buffs: list[CraftBuff] = field(default_factory=lambda: [
+        CraftBuff(on=True, key="6", name="버프 1"),
+        CraftBuff(on=True, key="7", name="버프 2"),
+        CraftBuff(on=True, key="8", name="버프 3"),
+    ])
+    esc_gap_s: float = 0.1    # [Esc] ↔ 버프 키 사이
+    buff_gap_s: float = 1.0   # 버프와 버프 사이
+
+    fatigue_rule: str = ""
+    fatigue_over: float = 0.0  # 0이면 가득 찰 때, 아니면 앞 값이 이 수 이상일 때
+    check_s: float = 60.0      # 피로도 확인 간격(초)
+
+    mined_s: float = 0.0       # 여태 [Ctrl]을 누르고 있던 시간 (참고용)
+
+    KEYS = ("6", "7", "8")
+
+    def problems(self) -> list[str]:
+        return [] if self.fatigue_rule else ["피로도 조건을 안 골랐습니다"]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "MineSetup":
+        data = data if isinstance(data, dict) else {}
+        obj = _coerce(cls, {k: v for k, v in data.items() if k != "buffs"})
+        rows = data.get("buffs")
+        if isinstance(rows, list) and rows:
+            obj.buffs = [CraftBuff.from_dict(r) for r in rows][:len(cls.KEYS)]
+        while len(obj.buffs) < len(cls.KEYS):
+            obj.buffs.append(CraftBuff(on=True, name=f"버프 {len(obj.buffs) + 1}"))
+        for buff, key in zip(obj.buffs, cls.KEYS):
+            buff.key = key    # 키는 고정이다
+        obj.esc_gap_s = max(0.03, min(2.0, float(obj.esc_gap_s)))
+        obj.buff_gap_s = max(0.1, min(30.0, float(obj.buff_gap_s)))
+        obj.fatigue_over = max(0.0, float(obj.fatigue_over or 0.0))
+        obj.check_s = max(5.0, min(3600.0, float(obj.check_s)))
+        obj.mined_s = max(0.0, float(obj.mined_s))
         return obj
 
 
@@ -2258,6 +2329,8 @@ class Profile:
     craft: CraftSetup = field(default_factory=CraftSetup)
     # 목장도 하나. 시나리오를 복사해 들고 있다.
     ranch: RanchSetup = field(default_factory=RanchSetup)
+    # 채광도 하나.
+    mine: MineSetup = field(default_factory=MineSetup)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -2268,6 +2341,7 @@ class Profile:
             "lumber": self.lumber.to_dict(),
             "craft": self.craft.to_dict(),
             "ranch": self.ranch.to_dict(),
+            "mine": self.mine.to_dict(),
             "macros": [m.to_dict() for m in self.macros],
             "repeats": [r.to_dict() for r in self.repeats],
             "paths": [p.to_dict() for p in self.paths],
@@ -2299,4 +2373,5 @@ class Profile:
             lumber=LumberSetup.from_dict(data.get("lumber") or {}),
             craft=CraftSetup.from_dict(data.get("craft") or {}),
             ranch=RanchSetup.from_dict(data.get("ranch") or {}),
+            mine=MineSetup.from_dict(data.get("mine") or {}),
         )

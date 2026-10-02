@@ -61,6 +61,9 @@ KIND_LABELS = {
     "ranch:buffs": "목장(버프만)",
     "ranch:fatigue": "목장(피로도만)",
     "ranch:one": "목장(한 바퀴만)",
+    "mine": "채광",
+    "mine:buffs": "채광(버프만)",
+    "mine:fatigue": "채광(피로도만)",
 }
 
 
@@ -790,6 +793,28 @@ class Engine:
                     self.save()
 
             return _ranch
+
+        if kind.startswith("mine"):
+            setup = self.profile.mine
+            part = kind.partition(":")[2]
+
+            def _mine() -> None:
+                from . import mine, ranch
+
+                try:
+                    if part == "buffs":
+                        ranch.activate_game(ctx)
+                        ctx.log(f"  {ranch.use_buffs(setup, ctx, self.save)}")
+                    elif part == "fatigue":
+                        ranch.activate_game(ctx)
+                        full, detail = mine.full_now(setup, ctx, self.find_rule)
+                        ctx.log(f"  피로도: {'가득' if full else '아직'} [{detail}]")
+                    else:
+                        mine.run_mine(setup, ctx, self.find_rule, save=self.save)
+                finally:
+                    self.save()
+
+            return _mine
 
         if kind == "schedule":
             schedule = self.find_schedule(name)

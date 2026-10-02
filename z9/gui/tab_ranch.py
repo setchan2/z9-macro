@@ -9,6 +9,7 @@ from __future__ import annotations
 import tkinter as tk
 from tkinter import messagebox, ttk
 
+from ..model import RanchSetup
 from . import theme
 from .widgets import ScrollFrame, get_float
 
@@ -76,6 +77,25 @@ class RanchTab(ScrollFrame):
                   "그룹의 반복 횟수만큼 돌면 한 바퀴입니다 (무한이면 한 번). "
                   "조건부 그룹은 쓰지 않습니다.")
         ).grid(row=2, column=0, sticky="w", pady=(6, 0))
+
+        # 휠 칸 수 = 살 것의 순번. '1)' · '2)' 매크로 단계마다 하나씩 고른다.
+        picks = ttk.Frame(flow)
+        picks.grid(row=3, column=0, sticky="w", pady=(10, 0))
+        self.wheel_rows = []
+        for i, (prefix, what, names) in enumerate(RanchSetup.WHEEL_PICKS):
+            var = tk.StringVar()
+            note = tk.StringVar()
+            ttk.Label(picks, text=f"{prefix} {what} (휠 칸 수)").grid(
+                row=i, column=0, sticky="w", pady=2)
+            box = ttk.Combobox(
+                picks, textvariable=var, width=16, state="readonly",
+                values=[f"{n} · {name}" for n, name in enumerate(names)])
+            box.grid(row=i, column=1, sticky="w", padx=(8, 8))
+            box.bind("<<ComboboxSelected>>",
+                     lambda _e, p=prefix, v=var: self._pick_wheel(p, v))
+            ttk.Label(picks, textvariable=note, style="Faint.TLabel").grid(
+                row=i, column=2, sticky="w")
+            self.wheel_rows.append((prefix, names, var, note, box))
 
         # -- ② 버프 --------------------------------------------------------
         row += 1
@@ -259,6 +279,49 @@ class RanchTab(ScrollFrame):
         self.engine.log(f"목장: 시나리오 '{scenario.name}'을(를) 가져왔습니다.")
         self._sync_source()
 
+    def _pick_wheel(self, prefix: str, var) -> None:
+        """고른 순번을 그 단계의 휠 칸 수로 적는다 (0칸 = 굴리지 않음)."""
+        step = self.engine.profile.ranch.wheel_step(prefix)
+        if step is None:
+            return
+        try:
+            step.wheel_count = int(var.get().split("·")[0].strip())
+        except ValueError:
+            return
+        self.engine.save()
+        self._sync_source()
+
+    @staticmethod
+    def _wheel_note(step) -> str:
+        if step.kind != "macro" or step.wheel_count < 0:
+            return ""
+        for prefix, _what, names in RanchSetup.WHEEL_PICKS:
+            if step.target.strip().startswith(prefix) and \
+                    step.wheel_count < len(names):
+                return f"  — 휠 {step.wheel_count}칸 · {names[step.wheel_count]}"
+        return f"  — 휠 {step.wheel_count}칸"
+
+    def _sync_wheels(self) -> None:
+        setup = self.engine.profile.ranch
+        for prefix, names, var, note, box in self.wheel_rows:
+            step = setup.wheel_step(prefix)
+            if step is None:
+                var.set("")
+                box.configure(state="disabled")
+                note.set(f"가져온 시나리오에 '{prefix}'로 시작하는 매크로가 없습니다")
+                continue
+            box.configure(state="readonly")
+            count = step.wheel_count
+            if 0 <= count < len(names):
+                var.set(f"{count} · {names[count]}")
+                note.set(f"'{step.target}' 휠 {count}칸")
+            else:
+                var.set("")
+                note.set(f"'{step.target}' — 지금은 "
+                         + ("매크로에 녹화된 대로" if count < 0
+                            else f"휠 {count}칸 (목록 밖)")
+                         + " · 골라 주세요")
+
     def _adopt_defaults(self) -> None:
         """비어 있으면 알맞은 것을 채워 둔다 — 시나리오와 피로도 조건."""
         setup = self.engine.profile.ranch
@@ -293,10 +356,11 @@ class RanchTab(ScrollFrame):
                 lines.append(f"  [{group.name}] {times} · 단계 사이 "
                              f"{group.interval_ms}ms")
                 for i, step in enumerate(group.steps, start=1):
-                    lines.append(f"     {i}. {step.label}")
+                    lines.append(f"     {i}. {step.label}{self._wheel_note(step)}")
             self.source_var.set("\n".join(lines))
             if not self.pick_var.get():
                 self.pick_var.set(setup.source)
+        self._sync_wheels()
         self._sync_ready()
 
     def _sync_ready(self) -> None:

@@ -744,12 +744,18 @@ def _run_macro_step(
         # 원본은 그대로 두고, 이번 실행에만 휠 칸 수를 갈아 끼운다.
         if target is macro:
             target = copy.copy(macro)
-        count = max(wheel_count, 1)
-        target.events = [
-            ({**e, "count": count} if e.get("kind") == "wheel" else e)
-            for e in target.events
-        ]
-        ctx.log(f"  ※ 휠을 {count}칸으로 바꿔 실행합니다.")
+        if wheel_count == 0:
+            # 0칸 = 굴리지 않는다 (목록 맨 위 것을 고른다). 시나리오 편집기는
+            # 1 이상만 적으므로 0은 목장처럼 따로 정한 곳에서만 온다.
+            target.events = [e for e in target.events if e.get("kind") != "wheel"]
+            ctx.log("  ※ 휠을 굴리지 않고(0칸) 실행합니다.")
+        else:
+            count = wheel_count
+            target.events = [
+                ({**e, "count": count} if e.get("kind") == "wheel" else e)
+                for e in target.events
+            ]
+            ctx.log(f"  ※ 휠을 {count}칸으로 바꿔 실행합니다.")
 
     return play_macro(target, sub, quiet=quiet)
 

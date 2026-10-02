@@ -28,8 +28,8 @@
     "ui_bg_margin": 16,
     "ui_icon": "",
     "ui_font": "G마켓 산스 TTF Medium",
-    "window_geometry": "1179x1009+93+165",
-    "sash_main": 797,
+    "window_geometry": "1179x1032+211+196",
+    "sash_main": 816,
     "sash_list": 346,
     "sash_events": 356,
     "observe_step": 4,
@@ -515,7 +515,7 @@
             "kind": "macro",
             "target": "1) 사파리이동+ 맹수구매(휠)",
             "delay_ms": -1,
-            "wheel_count": 6,
+            "wheel_count": 4,
             "wait_ms": 1000,
             "limit_mode": "item",
             "repeat_count": 1,
@@ -577,12 +577,12 @@
       {
         "on": true,
         "key": "8",
-        "name": "버프 1",
-        "period_min": 0.0,
+        "name": "목왕",
+        "period_min": 16.0,
         "due_at": 0.0
       },
       {
-        "on": true,
+        "on": false,
         "key": "9",
         "name": "버프 2",
         "period_min": 0.0,
@@ -591,16 +591,47 @@
     ],
     "esc_gap_s": 0.1,
     "buff_gap_s": 1.0,
-    "fatigue_on": true,
+    "fatigue_on": false,
     "fatigue_rule": "피로도 확인",
     "fatigue_over": 0.0,
     "fatigue_macro": "",
     "every_on": false,
     "every_n": 10,
     "every_macro": "",
-    "rounds": 0,
+    "rounds": 36,
     "fatigue_runs": 0,
     "every_runs": 0
+  },
+  "mine": {
+    "buffs": [
+      {
+        "on": true,
+        "key": "6",
+        "name": "버프 1",
+        "period_min": 0.0,
+        "due_at": 0.0
+      },
+      {
+        "on": true,
+        "key": "7",
+        "name": "버프 2",
+        "period_min": 0.0,
+        "due_at": 0.0
+      },
+      {
+        "on": true,
+        "key": "8",
+        "name": "버프 3",
+        "period_min": 0.0,
+        "due_at": 0.0
+      }
+    ],
+    "esc_gap_s": 0.1,
+    "buff_gap_s": 1.0,
+    "fatigue_rule": "피로도 확인",
+    "fatigue_over": 0.0,
+    "check_s": 60.0,
+    "mined_s": 0.0
   },
   "macros": [
     {
