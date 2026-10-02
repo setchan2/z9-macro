@@ -21,6 +21,7 @@ from .tab_help import HelpTab
 from .tab_library import LibraryTab
 from .tab_lumber import LumberTab
 from .tab_macros import MacroTab
+from .tab_ranch import RanchTab
 from .tab_scenario import ScenarioTab
 from .tab_settings import SettingsTab
 
@@ -296,6 +297,7 @@ class App(tk.Tk):
         self.fishing_tab = FishingTab(notebook, self.engine)
         self.lumber_tab = LumberTab(notebook, self.engine)
         self.craft_tab = CraftTab(notebook, self.engine)
+        self.ranch_tab = RanchTab(notebook, self.engine)
         self.help_tab = HelpTab(notebook, self.engine)
 
         notebook.add(self.scenario_tab, text="  시나리오 편집기  ")
@@ -306,6 +308,7 @@ class App(tk.Tk):
         notebook.add(self.fishing_tab, text="  낚시  ")
         notebook.add(self.lumber_tab, text="  벌목  ")
         notebook.add(self.craft_tab, text="  제작  ")
+        notebook.add(self.ranch_tab, text="  목장  ")
         notebook.add(self.help_tab, text="  도움말  ")
         notebook.bind("<<NotebookTabChanged>>", self._on_tab_change)
 
@@ -360,6 +363,7 @@ class App(tk.Tk):
         self.fishing_tab.refresh()
         self.lumber_tab.refresh()
         self.craft_tab.refresh()
+        self.ranch_tab.refresh()
         self.scenario_tab.refresh_sources()
         self.scenario_tab.refresh_tools()
 

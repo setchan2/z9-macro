@@ -2011,6 +2011,108 @@ class CraftSetup:
 
 
 # --------------------------------------------------------------------------
+# 목장 (시나리오 한 바퀴 + 피로도)
+# --------------------------------------------------------------------------
+@dataclass
+class RanchSetup:
+    """목장 매크로 — 시나리오를 그대로 옮겨 와 한 바퀴씩 돌린다.
+
+        ⓪ 처음 한 번   게임(지구별) 창을 앞으로 세운다
+        ① 버프         재사용 대기가 끝난 것만 — [Esc] → 버프 키 → [Esc]
+        ② 그룹 한 바퀴  옮겨 온 시나리오의 그룹을 차례대로 한 번
+        ③ 피로도       가득(또는 기준값 이상)이면 정해 둔 매크로를 한 번
+        → 다시 ①
+
+    **시나리오는 이름으로 가리키지 않고 통째로 복사해 둔다.** 목장 흐름은 목장
+    탭에서 관리하고, 시나리오 편집기에서 그 시나리오를 고치거나 지워도 목장은
+    그대로 돈다. 바꾼 것을 반영하려면 [가져오기]를 다시 누른다.
+    """
+
+    source: str = ""          # 어느 시나리오에서 가져왔나 (안내용)
+    groups: list[ScenarioGroup] = field(default_factory=list)
+
+    # ① 버프 — 8번 · 9번 키. 이름과 재사용 대기(분)는 사용자가 정한다.
+    buffs: list[CraftBuff] = field(default_factory=lambda: [
+        CraftBuff(on=True, key="8", name="버프 1"),
+        CraftBuff(on=True, key="9", name="버프 2"),
+    ])
+    esc_gap_s: float = 0.1    # [Esc] ↔ 버프 키 사이 (타이트하게)
+    buff_gap_s: float = 1.0   # 버프와 버프 사이
+
+    # ③ 피로도 — [조건] 탭의 숫자 조건을 이름으로 쓴다 (낚시와 같은 방식).
+    fatigue_on: bool = True
+    fatigue_rule: str = ""
+    fatigue_over: float = 0.0  # 0이면 가득 찰 때, 아니면 앞 값이 이 수 이상일 때
+    fatigue_macro: str = ""
+
+    # ④ N바퀴마다 — 켜 두면 정한 바퀴 수를 돌 때마다 매크로를 한 번 돌리고
+    # 시나리오를 이어 간다 (예: 10바퀴마다 창고 정리).
+    every_on: bool = False
+    every_n: int = 10
+    every_macro: str = ""
+
+    rounds: int = 0           # 여태 돈 바퀴 수 (참고용)
+    fatigue_runs: int = 0     # 피로도 매크로를 돌린 횟수 (참고용)
+    every_runs: int = 0       # N바퀴 매크로를 돌린 횟수 (참고용)
+
+    @property
+    def ordered_groups(self) -> list[ScenarioGroup]:
+        """차례대로 도는 그룹만. 조건부 그룹은 목장에서 쓰지 않는다."""
+        return [g for g in self.groups if not g.conditional and g.steps]
+
+    def take(self, scenario: "Scenario") -> None:
+        """시나리오의 그룹을 **복사해** 들고 온다. 원본과는 끊어진다."""
+        self.source = scenario.name
+        self.groups = [ScenarioGroup.from_dict(g.to_dict())
+                       for g in scenario.groups]
+
+    def problems(self) -> list[str]:
+        """아직 못 정한 것들. 비어 있으면 돌릴 수 있다."""
+        out = []
+        if not self.ordered_groups:
+            out.append("돌릴 시나리오를 안 가져왔습니다")
+        if self.fatigue_on:
+            if not self.fatigue_rule:
+                out.append("피로도 조건을 안 골랐습니다")
+            if not self.fatigue_macro:
+                out.append("피로도가 찼을 때 돌릴 매크로를 안 골랐습니다")
+        if self.every_on and not self.every_macro:
+            out.append(f"{self.every_n}바퀴마다 돌릴 매크로를 안 골랐습니다")
+        return out
+
+    def to_dict(self) -> dict[str, Any]:
+        data = asdict(self)
+        data["groups"] = [g.to_dict() for g in self.groups]
+        return data
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "RanchSetup":
+        data = data if isinstance(data, dict) else {}
+        obj = _coerce(cls, {k: v for k, v in data.items()
+                            if k not in ("groups", "buffs")})
+        obj.groups = [ScenarioGroup.from_dict(g)
+                      for g in (data.get("groups") or []) if isinstance(g, dict)]
+        rows = data.get("buffs")
+        if isinstance(rows, list) and rows:
+            obj.buffs = [CraftBuff.from_dict(r) for r in rows][:2]
+        # 8번 · 9번 두 칸은 늘 있다. 키는 고정이다.
+        while len(obj.buffs) < 2:
+            obj.buffs.append(CraftBuff(on=True, name=f"버프 {len(obj.buffs) + 1}"))
+        for buff, key in zip(obj.buffs, ("8", "9")):
+            buff.key = key
+        obj.esc_gap_s = max(0.03, min(2.0, float(obj.esc_gap_s)))
+        obj.buff_gap_s = max(0.1, min(30.0, float(obj.buff_gap_s)))
+        obj.fatigue_on = bool(obj.fatigue_on)
+        obj.fatigue_over = max(0.0, float(obj.fatigue_over or 0.0))
+        obj.rounds = max(0, int(obj.rounds))
+        obj.fatigue_runs = max(0, int(obj.fatigue_runs))
+        obj.every_on = bool(obj.every_on)
+        obj.every_n = max(1, min(100000, int(obj.every_n)))
+        obj.every_runs = max(0, int(obj.every_runs))
+        return obj
+
+
+# --------------------------------------------------------------------------
 # 설정 + 프로필
 # --------------------------------------------------------------------------
 @dataclass
@@ -2154,6 +2256,8 @@ class Profile:
     lumber: LumberSetup = field(default_factory=LumberSetup)
     # 제작도 하나. 치트엔진 자리와 다시 접속하는 길을 적어 둔다.
     craft: CraftSetup = field(default_factory=CraftSetup)
+    # 목장도 하나. 시나리오를 복사해 들고 있다.
+    ranch: RanchSetup = field(default_factory=RanchSetup)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -2163,6 +2267,7 @@ class Profile:
             "fishing": self.fishing.to_dict(),
             "lumber": self.lumber.to_dict(),
             "craft": self.craft.to_dict(),
+            "ranch": self.ranch.to_dict(),
             "macros": [m.to_dict() for m in self.macros],
             "repeats": [r.to_dict() for r in self.repeats],
             "paths": [p.to_dict() for p in self.paths],
@@ -2193,4 +2298,5 @@ class Profile:
             fishing=FishingSetup.from_dict(data.get("fishing", {})),
             lumber=LumberSetup.from_dict(data.get("lumber") or {}),
             craft=CraftSetup.from_dict(data.get("craft") or {}),
+            ranch=RanchSetup.from_dict(data.get("ranch") or {}),
         )

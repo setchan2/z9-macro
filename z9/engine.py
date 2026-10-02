@@ -57,6 +57,10 @@ KIND_LABELS = {
     "craft:speedhack": "제작(치트엔진만)",
     "craft:reconnect": "제작(다시 접속만)",
     "craft:one": "제작(한 바퀴만)",
+    "ranch": "목장",
+    "ranch:buffs": "목장(버프만)",
+    "ranch:fatigue": "목장(피로도만)",
+    "ranch:one": "목장(한 바퀴만)",
 }
 
 
@@ -754,6 +758,38 @@ class Engine:
                     self.save()
 
             return _craft
+
+        if kind.startswith("ranch"):
+            setup = self.profile.ranch
+            part = kind.partition(":")[2]
+            finders = {
+                "macro": self.find_macro, "repeat": self.find_repeat,
+                "path": self.find_path, "schedule": self.find_schedule,
+                "scenario": self.find_scenario, "rule": self.find_rule,
+                "buff": self.find_buff, "library_root": self.library_root,
+            }
+
+            # 한 단계만 돌려 보는 것도 본 흐름과 같은 함수로 한다.
+            def _ranch() -> None:
+                from . import ranch
+
+                try:
+                    if part == "buffs":
+                        ranch.activate_game(ctx)
+                        ctx.log(f"  {ranch.use_buffs(setup, ctx, self.save)}")
+                    elif part == "fatigue":
+                        ranch.activate_game(ctx)
+                        ctx.log("  피로도: " + ranch.check_fatigue(
+                            setup, ctx, self.find_rule, self.find_macro,
+                            self.save))
+                    else:
+                        ranch.run_ranch(setup, ctx, finders,
+                                        rounds=1 if part == "one" else 0,
+                                        save=self.save)
+                finally:
+                    self.save()
+
+            return _ranch
 
         if kind == "schedule":
             schedule = self.find_schedule(name)

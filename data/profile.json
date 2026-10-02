@@ -28,7 +28,7 @@
     "ui_bg_margin": 16,
     "ui_icon": "",
     "ui_font": "G마켓 산스 TTF Medium",
-    "window_geometry": "1600x1009+93+165",
+    "window_geometry": "1179x1009+93+165",
     "sash_main": 797,
     "sash_list": 346,
     "sash_events": 356,
@@ -423,7 +423,7 @@
         "y": 675
       }
     ],
-    "channel_next": 4,
+    "channel_next": 5,
     "client_w": 0,
     "client_h": 0,
     "buffs": [
@@ -432,14 +432,14 @@
         "key": "5",
         "name": "점검사",
         "period_min": 400.0,
-        "due_at": 1790376525.1609972
+        "due_at": 1790832491.0505614
       },
       {
         "on": true,
         "key": "6",
         "name": "삼계탕",
         "period_min": 34.0,
-        "due_at": 1790370911.7292824
+        "due_at": 1790810533.094818
       },
       {
         "on": false,
@@ -503,7 +503,104 @@
     "after_kill_s": 2.0,
     "step_gap_s": 0.8,
     "retry_s": 5.0,
-    "cycles": 102
+    "cycles": 105
+  },
+  "ranch": {
+    "source": "[Verson 1.0] 투목",
+    "groups": [
+      {
+        "name": "그룹 1",
+        "steps": [
+          {
+            "kind": "macro",
+            "target": "1) 사파리이동+ 맹수구매(휠)",
+            "delay_ms": -1,
+            "wheel_count": 6,
+            "wait_ms": 1000,
+            "limit_mode": "item",
+            "repeat_count": 1,
+            "limit_seconds": 10.0
+          },
+          {
+            "kind": "wait",
+            "target": "",
+            "delay_ms": -1,
+            "wheel_count": -1,
+            "wait_ms": 19000,
+            "limit_mode": "item",
+            "repeat_count": 1,
+            "limit_seconds": 10.0
+          },
+          {
+            "kind": "macro",
+            "target": "2) 동물농장이동+동물구매(휠)",
+            "delay_ms": -1,
+            "wheel_count": 8,
+            "wait_ms": 1000,
+            "limit_mode": "item",
+            "repeat_count": 1,
+            "limit_seconds": 10.0
+          },
+          {
+            "kind": "wait",
+            "target": "",
+            "delay_ms": -1,
+            "wheel_count": -1,
+            "wait_ms": 5000,
+            "limit_mode": "item",
+            "repeat_count": 1,
+            "limit_seconds": 10.0
+          },
+          {
+            "kind": "macro",
+            "target": "3) 투목 완성본 복사 복사",
+            "delay_ms": -1,
+            "wheel_count": -1,
+            "wait_ms": 1000,
+            "limit_mode": "item",
+            "repeat_count": 1,
+            "limit_seconds": 10.0
+          }
+        ],
+        "repeat": 1,
+        "interval_ms": 300,
+        "conditions": [],
+        "buffs": [],
+        "buff_margin_s": 30,
+        "kind": "normal",
+        "trigger": "",
+        "trigger_when": "cycle",
+        "trigger_cooldown_s": 0
+      }
+    ],
+    "buffs": [
+      {
+        "on": true,
+        "key": "8",
+        "name": "버프 1",
+        "period_min": 0.0,
+        "due_at": 0.0
+      },
+      {
+        "on": true,
+        "key": "9",
+        "name": "버프 2",
+        "period_min": 0.0,
+        "due_at": 0.0
+      }
+    ],
+    "esc_gap_s": 0.1,
+    "buff_gap_s": 1.0,
+    "fatigue_on": true,
+    "fatigue_rule": "피로도 확인",
+    "fatigue_over": 0.0,
+    "fatigue_macro": "",
+    "every_on": false,
+    "every_n": 10,
+    "every_macro": "",
+    "rounds": 0,
+    "fatigue_runs": 0,
+    "every_runs": 0
   },
   "macros": [
     {
@@ -8004,7 +8101,7 @@
               "kind": "macro",
               "target": "1) 사파리이동+ 맹수구매(휠)",
               "delay_ms": -1,
-              "wheel_count": 1,
+              "wheel_count": 6,
               "wait_ms": 1000,
               "limit_mode": "item",
               "repeat_count": 1,
